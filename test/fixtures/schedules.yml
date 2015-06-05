@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  month: 1
+  day: 1
+  reserved: false
+  host_id: 
+
+two:
+  month: 1
+  day: 1
+  reserved: false
+  host_id: 
