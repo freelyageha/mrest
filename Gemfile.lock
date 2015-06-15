@@ -68,6 +68,8 @@ GEM
     erubis (2.7.0)
     execjs (2.5.2)
     ffi (1.9.8)
+    font-awesome-rails (4.3.0.0)
+      railties (>= 3.2, < 5.0)
     globalid (0.3.5)
       activesupport (>= 4.1.0)
     http-cookie (1.0.2)
@@ -197,6 +199,7 @@ DEPENDENCIES
   bullet
   byebug
   database_cleaner
+  font-awesome-rails
   iconv
   interactive_editor
   jbuilder (~> 2.0)

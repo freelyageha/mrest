@@ -1,0 +1,6 @@
+ko:
+  home:
+    welcome_html: "<h2>환영합니다!</h2><h4 id='subtitle'>전국의 숲속의 쉼터를 찾아보세요.</h4>"
+
+  search:
+    where_do_you_want_to_go: "어디에 가고 싶으세요?"
