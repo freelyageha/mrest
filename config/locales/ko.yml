@@ -2,5 +2,12 @@ ko:
   home:
     welcome_html: "<h2>환영합니다!</h2><h4 id='subtitle'>전국의 숲속의 쉼터를 찾아보세요.</h4>"
 
+  common:
+    checkin: "체크인"
+    checkout: "체크아웃"
+
   search:
     where_do_you_want_to_go: "어디에 가고 싶으세요?"
+    guest: "게스트 %{count}명"
+    guests: "게스트 %{count}명"
+    find_a_place: "숙소 찾기"
