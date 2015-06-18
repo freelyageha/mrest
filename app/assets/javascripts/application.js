@@ -17,7 +17,17 @@
 
 
 $(function() {
-  $('.datepicker').datepicker({
-    orientation: "top auto"
+  var today = new Date();
+  $('.input-daterange, .datepicker').datepicker({
+    todayHighlight: true,
+    startDate: (today.getMonth()+1) + "/" + today.getDate + "/" + today.getFullYear(),
+    autoclose: true
+  })
+  .on("hide", function(e) {
+    if (this.id == 'checkin') {
+      var startDate = $("#checkin").datepicker('getDate');
+      $("#checkout").datepicker('setStartDate', startDate);
+      $("#checkout").datepicker('show');
+    }
   });
 })

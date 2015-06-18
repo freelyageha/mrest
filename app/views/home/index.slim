@@ -6,11 +6,11 @@
     .form-group.col-xs-12
       input.form-control type="text" placeholder=t("search.where_do_you_want_to_go")
 
-    .form-group.col-sm-4.col-xs-6
-      input.form-control.datepicker type="text" placeholder=t("common.checkin")
-
-    .form-group.col-sm-4.col-xs-6
-      input.form-control.datepicker type="text" placeholder=t("common.checkin")
+    .input-daterange
+      .form-group.col-sm-4.col-xs-6
+        input#checkin.datepicker.form-control type="text" placeholder=t("common.checkin")
+      .form-group.col-sm-4.col-xs-6
+        input#checkout.datepicker.form-control type="text" placeholder=t("common.checkin")
 
     .form-group.col-sm-4.col-xs-12
       select.form-control
