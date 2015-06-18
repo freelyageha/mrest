@@ -12,4 +12,12 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require bootstrap-datepicker.min
 //= require_tree .
+
+
+$(function() {
+  $('.datepicker').datepicker({
+    orientation: "top auto"
+  });
+})
