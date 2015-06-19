@@ -1,0 +1,4 @@
+= link_to host_path(host.id, checkin: @checkin, checkout: @checkout), class: 'col-sm-6 col-xs-12 list-group-item' do
+  h4.list-group-item-heading = host.name
+  p.list-group-item-text
+    = host.updated_at.strftime("%Y/%m/%d")

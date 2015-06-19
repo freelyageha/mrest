@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   resources :home, only: [:index]
   resources :search, only: [:index]
 
+  resources :hosts
+
 end

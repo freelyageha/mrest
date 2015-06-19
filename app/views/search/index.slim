@@ -1,5 +1,5 @@
 .row
   = render 'layouts/search_form'
 
-.list-group
-  = render partial: "hosts/host", collection: @hosts
+#host-list.list-group
+  = render partial: "host", collection: @hosts
