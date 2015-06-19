@@ -1,0 +1,7 @@
+.row
+  = render 'layouts/search_form'
+
+.row
+  - @hosts.each do |host|
+    .col-xs-12
+      = host.inspect

@@ -2,23 +2,4 @@
   = t("home.welcome_html")
 
 .row
-  form
-    .form-group.col-xs-12
-      input.form-control type="text" placeholder=t("search.where_do_you_want_to_go")
-
-    .input-daterange
-      .form-group.col-sm-4.col-xs-6
-        input#checkin.datepicker.form-control type="text" placeholder=t("common.checkin")
-      .form-group.col-sm-4.col-xs-6
-        input#checkout.datepicker.form-control type="text" placeholder=t("common.checkin")
-
-    .form-group.col-sm-4.col-xs-12
-      select.form-control
-        - (1..16).to_a.each do |count|
-          - if count == 1
-            option value=count = t("search.guest", count: count)
-          - else
-            option value=count = t("search.guests", count: count)
-
-    .col-xs-12
-      button type="submit" class="btn btn-primary btn-block" = t("search.find_a_place")
+  = render 'layouts/search_form'
