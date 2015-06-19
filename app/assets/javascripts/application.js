@@ -20,7 +20,8 @@ $(function() {
   var today = new Date();
   $('.input-daterange, .datepicker').datepicker({
     todayHighlight: true,
-    startDate: (today.getMonth()+1) + "/" + today.getDate + "/" + today.getFullYear(),
+    format: "yyyy/mm/dd",
+    startDate:  today.getFullYear() + "/" + (today.getMonth()+1) + "/" + today.getDate,
     autoclose: true
   })
   .on("hide", function(e) {

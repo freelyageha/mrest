@@ -5,17 +5,18 @@
   .addtional-search-form
     .input-daterange
       .form-group.col-sm-4.col-xs-6
-        input#checkin.datepicker.form-control name=:checkin type="text" placeholder=t("common.checkin")
+        input#checkin.datepicker.form-control name=:checkin type="text" placeholder=t("common.checkin") value=params[:checkin]
       .form-group.col-sm-4.col-xs-6
-        input#checkout.datepicker.form-control name=:checkout type="text" placeholder=t("common.checkin")
+        input#checkout.datepicker.form-control name=:checkout type="text" placeholder=t("common.checkin") value=params[:checkout]
 
     .form-group.col-sm-4.col-xs-12
-      select.form-control
+      select.form-control name=:guest
         - (1..16).to_a.each do |count|
+          - selected = (count == params[:guest].to_i ? true : false)
           - if count == 1
-            option value=count = t("search.guest", count: count)
+            option value=count selected=selected = t("search.guest", count: count)
           - else
-            option value=count = t("search.guests", count: count)
+            option value=count selected=selected = t("search.guests", count: count)
 
     .col-xs-12
       button type="submit" class="btn btn-primary btn-block" = t("search.find_a_place")
