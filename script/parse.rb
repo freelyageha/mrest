@@ -8,6 +8,7 @@ MONTH = Time.now.month
 def get_type_one
   # TYPE 1
   Host.where(parse_type: 1).each do |host|
+    puts "-- Parsing... #{host.name}"
     url = open("#{host.parse_url}?f_year=#{YEAR}&f_month=#{MONTH}")
     doc = Nokogiri::HTML(url, nil, 'euc-kr')
     rows = doc.css("[width='744']").css("[bgcolor='dad3c9']").css("tr")
@@ -16,7 +17,13 @@ def get_type_one
       next unless titles.present?
 
       room_name = titles.first.text
-      room = Room.find_or_create_by(name: room_name)
+      guest_count = if m = room_name.match(/(\d+)명/)
+                      m.captures.first.to_i
+                    else
+                      nil
+                    end
+
+      room = Room.find_or_create_by(host: host, name: room_name, guest: guest_count)
 
       cols = row.css("td[width='15']")
       cols.each_with_index do |col, index|
@@ -36,6 +43,7 @@ end
 def get_type_two
   # TYPE 2 - with post method(거제)
   Host.where(parse_type: 2).each do |host|
+    puts "-- Parsing... #{host.name}"
     header = { referer: host.parse_url }
     content = RestClient.post host.parse_url, { wh_year: YEAR, wh_month: MONTH, x: 14, y: 12 }, header
     doc = Nokogiri::HTML(content)
@@ -46,7 +54,13 @@ def get_type_two
       next unless titles.present?
 
       room_name = titles.first.text
-      room = Room.find_or_create_by(host: host, name: room_name)
+      guest_count = if m = room_name.match(/(\d+)명/)
+                      m.captures.last.to_i
+                    else
+                      nil
+                    end
+
+      room = Room.find_or_create_by(host: host, name: room_name, guest: guest_count)
 
       cols = row.css("td")
       cols.each_with_index do |col, day|
