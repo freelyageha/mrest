@@ -14,6 +14,7 @@
 //= require jquery_ujs
 //= require bootstrap-datepicker.min
 //= require_tree .
+//= require_self
 
 
 $(function() {
