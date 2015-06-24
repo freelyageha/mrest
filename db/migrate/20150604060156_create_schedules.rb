@@ -5,8 +5,8 @@ class CreateSchedules < ActiveRecord::Migration
       t.integer :month
       t.integer :day
       t.boolean :reserved, default: false
-      t.references :host, index: true, foreign_key: true
-      t.references :room, index: true, foreign_key: true
+      t.references :host, index: true
+      t.references :room, index: true
 
       t.timestamps null: false
     end

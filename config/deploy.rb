@@ -78,7 +78,9 @@ namespace :deploy do
 
   desc "Make symlink for database yaml"
   task :symlink_shared do
-    run "cp #{shared_path}/config/database.yml #{latest_release}/config/database.yml"
+    on roles(:web) do |host|
+      execute "cp #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+    end
   end
 
   desc "migrate database"
@@ -98,4 +100,4 @@ namespace :deploy do
   end
 end
 
-before "deploy:asset_precompile", "deploy:symlink_shared"
+before "deploy:migrate_db", "deploy:symlink_shared"
