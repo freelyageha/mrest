@@ -43,6 +43,8 @@ set :rvm_type, :system    # :user is the default
 # Default value for keep_releases is 5
 # set :keep_releases, 5
 
+after "deploy:bundle","deploy:symlink"
+
 namespace :check do
   task :variable do
     puts "#{fetch(:stage)}"
