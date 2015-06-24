@@ -43,7 +43,6 @@ set :rvm_type, :system    # :user is the default
 # Default value for keep_releases is 5
 # set :keep_releases, 5
 
-after "deploy:bundle","deploy:symlink"
 
 namespace :check do
   task :variable do
@@ -78,7 +77,7 @@ namespace :deploy do
   end
 
   desc "Make symlink for database yaml"
-  task :symlink do
+  task :symlink_shared do
     run "cp #{shared_path}/config/database.yml #{latest_release}/config/database.yml"
   end
 
@@ -98,3 +97,5 @@ namespace :deploy do
     end
   end
 end
+
+before "deploy:asset_precompile", "deploy:symlink_shared"
