@@ -37,6 +37,7 @@ gem 'less-rails'
 gem 'rest-client'
 gem 'nokogiri'
 gem 'iconv'
+gem 'selenium-webdriver'
 
 # for admin
 gem 'activeadmin', github: 'activeadmin'
