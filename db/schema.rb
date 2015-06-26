@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150624202531) do
+ActiveRecord::Schema.define(version: 20150625202531) do
 
   create_table "active_admin_comments", force: :cascade do |t|
     t.string   "namespace"
@@ -51,14 +51,18 @@ ActiveRecord::Schema.define(version: 20150624202531) do
     t.string   "url"
     t.string   "parse_url"
     t.string   "reserve_url"
-    t.datetime "created_at",              null: false
-    t.datetime "updated_at",              null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
     t.integer  "parse_type",  default: 1
     t.string   "address"
     t.integer  "province_id"
     t.string   "country"
     t.float    "latitude"
     t.float    "longitude"
+    t.boolean  "need_login",  default: false
+    t.boolean  "parsed",      default: false
+    t.text     "dev_comment"
+    t.string   "cookie"
   end
 
   add_index "hosts", ["province_id"], name: "index_hosts_on_province_id"
