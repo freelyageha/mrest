@@ -8,7 +8,7 @@ MONTH = now.month
 YYMMDD = now.strftime("%Y%m%d")
 
 def get_type_one
-  # TYPE 1
+  # 
   Host.where(parse_type: 1).each do |host|
     puts "-- Parsing... #{host.name}"
     url = open("#{host.parse_url}?f_year=#{YEAR}&f_month=#{MONTH}")
@@ -43,8 +43,8 @@ def get_type_one
 end
 
 def get_type_two
-  # TYPE 2 - with post method(거제, 안면도 자연휴양림)
-  Host.where(parse_type: 2, id: 4).each do |host|
+  # with post method(거제)
+  Host.where(parse_type: 2).each do |host|
     puts "-- Parsing... #{host.name}"
     header = { referer: host.parse_url, cookie: 'ASPSESSIONIDQQDQDSCC=LBMMALCCHJKFMPGGJDGCEEPE' }
     puts host.parse_url
@@ -83,24 +83,24 @@ end
 
 
 def get_type_three
-  # TYPE 2 - with post method(거제, 안면도 자연휴양림)
+  # with post method(안면도 자연휴양림)
   Host.where(parse_type: 3).each do |host|
-    puts "-- Parsing... #{host.name}"
-    header = { referer: host.parse_url, cookie: 'ASPSESSIONIDQQDQDSCC=LBMMALCCHJKFMPGGJDGCEEPE' }
+    puts "-- Parsing... #{host.name} / #{host.parse_url}"
+    header = { referer: host.parse_url, cookie: host.cookie }
     content = RestClient.post host.parse_url, { wh_year: YEAR, wh_month: MONTH, x: 14, y: 12 }, header
     doc = Nokogiri::HTML(content, 'euc-kr')
 
-    rows = doc.css("[class='calendar'] tbody tr")
+    rows = doc.css("table tbody tr")
     rows.each do |row|
+      puts row
       cols = row.css("td")
       cols.each do |col|
         day = col.children.first.text.to_i
-        p "-- #{day}"
         next if day < 1
 
         rooms = col.css("form")
         rooms.each do |room|
-          room_name = room.text
+          room_name = room.text.gsub("*", "")
           room = Room.find_or_create_by(host: host, name: room_name)
           schedule = Schedule.find_or_create_by({
             year: YEAR, room: room, host: host, month: MONTH, day: day
@@ -132,4 +132,4 @@ end
 #get_type_two
 get_type_three
 #get_type_four
-#get_national_forest
+
