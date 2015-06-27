@@ -1,4 +1,6 @@
 class Host < ActiveRecord::Base
+  serialize :parse_url
+
   belongs_to :province
   has_many :rooms
   has_many :schedules

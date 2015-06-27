@@ -3,7 +3,7 @@ class CreateHosts < ActiveRecord::Migration
     create_table :hosts do |t|
       t.string :name
       t.string :url
-      t.string :parse_url
+      t.text :parse_url
       t.string :reserve_url
 
       t.timestamps null: false
