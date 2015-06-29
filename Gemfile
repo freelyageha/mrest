@@ -38,6 +38,7 @@ gem 'rest-client'
 gem 'nokogiri'
 gem 'iconv'
 gem 'selenium-webdriver'
+gem 'savon'
 
 # for admin
 gem 'activeadmin', github: 'activeadmin'
