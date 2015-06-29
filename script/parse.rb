@@ -195,18 +195,6 @@ def get_type_five(year, month)
 end
 
 def get_type_six(year, month)
-  '''
-  <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <SOAP-ENV:Body>
-      <tns:GetScheduleByGroup xmlns:tns="http://tempuri.org/">
-        <tns:companyCode>0031</tns:companyCode>
-        <tns:shopCode>0001</tns:shopCode>
-        <tns:yearMonth>201506</tns:yearMonth>
-      </tns:GetScheduleByGroup>
-    </SOAP-ENV:Body>
-  </SOAP-ENV:Envelope>
-  '''
-
   client = Savon.client(
     wsdl: 'http://strawberry.mainticket.co.kr/C2Soft.Earth.Web.Service/FlexService.asmx?wsdl',
     soap_header: {
@@ -216,14 +204,104 @@ def get_type_six(year, month)
     }
   )
 
-  #puts client.operations
-  res = client.call(
-    :get_schedule_by_group,
-    message: { companyCode: "0031", shopCode: "0001", yearMonth: "201507" }
-  )
-  puts res.body
+  Host.where(parse_type: 6).each do |host|
+    host.parse_url.each do |url|
+      company_code, shop_code = url.split("?").last.split("&")
+      company_code = company_code.split("=").last
+      shop_code = shop_code.split("=").last
 
+      today = Time.now
+      start_of_day = today.month == month ? today.day : 1
+      end_of_day = Time.new("#{year}%2d01", month).end_of_month.day + 1
+
+      (start_of_day...end_of_day).each do |day|
+        search_day = "#{year}#{month.to_s.rjust(2, '0')}#{day.to_s.rjust(2, '0')}"
+        reserved_rooms = []
+        unreserved_rooms = []
+        puts "# #{host.name} / #{search_day}"
+
+        groups = if host.name == '용문산 자연휴양림'
+                   ["0001", "0002", "0003"]
+                 else
+                   ["0004", "0005", "0007"]
+                 end
+        groups.each do |group|
+          res = client.call(
+            :get_schedule_by_group_map, message: {
+              companyCode: company_code, shopCode: shop_code, groupCode: group,
+              startDate: search_day, endDate: search_day
+            }
+          )
+          rows = res.body[:get_schedule_by_group_map_response][:get_schedule_by_group_map_result][:any_type]
+          rows.each do |row|
+            room_name = row[:product_name]
+            reserved = row[:remain_count].to_i > 0 ? false : true
+
+            room = Room.find_or_create_by(host: host, name: room_name)
+            schedule = Schedule.eager_load(:room).find_or_create_by({
+              year: year, room: room, host: host, month: month, day: day
+            })
+            schedule.update(reserved: reserved)
+          end
+        end
+      end
+    end
+  end
 end
+
+def get_type_seven(year, month)
+  # 영인산
+  Host.where(parse_type: 7).each do |host|
+    header = { referer: host.url, cookie: host.cookie }
+    host.parse_url.each do |url|
+      url = "#{url}/#{year}/#{month.to_s.rjust(2, '0')}/01/ASAN05/01/-"
+      doc = Nokogiri::HTML(RestClient.get(url, header), 'euc-kr')
+
+      reserve_content = ""
+      room_content = ""
+
+      doc.css('script').each do |script|
+        reserv_match = script.content.match(/var reserve_list = ({.*});/)
+        room_match = script.content.match(/var rentrooms = ({.*});/)
+        if reserv_match.present?
+          reserve_content = JSON.parse(reserv_match.captures.first)
+          room_content = JSON.parse(room_match.captures.first)
+          break
+        end
+      end
+
+      unless Room.where(host_id: host.id).exists?
+        room_content.keys.each do |key|
+          Room.create(
+            host_id: host.id,
+            name: room_content[key].first["3"],
+            uniq_id: key.to_i
+          )
+        end
+      end
+
+      today = Time.now
+      start_of_day = today.month == month ? today.day : 1
+      end_of_day = Time.new("#{year}%2d01", month).end_of_month.day + 1
+      (start_of_day...end_of_day).each do |day|
+        search_day = "#{year}#{month.to_s.rjust(2, '0')}#{day.to_s.rjust(2, '0')}"
+        reserved_rooms = reserve_content[search_day].map{|r| r["3"].to_i}
+
+        Schedule.where(host: host, year: year, month: month, day: day, reserved: false).update_all(reserved: true)
+
+        unreserved_room_ids = Room.where(host_id: host.id).where.not(uniq_id: reserved_rooms).pluck(:id)
+        unreserved_room_ids.each do |room_id|
+          schedule = Schedule.find_or_create_by({
+            room_id: room_id, host: host, year: year, month: month, day: day
+          })
+          schedule.update(reserved: false)
+        end
+      end
+
+    end
+  end
+end
+
 
 
 now = Time.now
@@ -231,12 +309,13 @@ YEAR = now.year
 MONTH = now.month
 YYMMDD = now.strftime("%Y%m%d")
 
-#[MONTH, MONTH + 1].each do |month|
-[MONTH].each do |month|
+[MONTH, MONTH + 1].each do |month|
+#[MONTH].each do |month|
   #get_type_one(YEAR, month)
   #get_type_two(YEAR, month)
   #get_type_three(YEAR, month)
   #get_type_four(YEAR, month)
   #get_type_five(YEAR, month)
-  get_type_six(YEAR, month)
+  #get_type_six(YEAR, month)
+  get_type_seven(YEAR, month)
 end
