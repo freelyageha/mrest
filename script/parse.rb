@@ -2,6 +2,7 @@ require 'open-uri'
 require 'iconv'
 
 def get_type_one(year, month)
+  # 소선암, 축령산
   Host.where(parse_type: 1).each do |host|
     host.parse_url.each do |u|
       puts "# -- Parsing... #{host.name} - #{u}"
@@ -29,14 +30,14 @@ def get_type_one(year, month)
         cols.each_with_index do |col, index|
           next if index == 0
 
-          is_possible = (col.css('form').present? ? true : false)
+          reserved = (col.css('form').present? ? false : true)
           day = index + 1
 
           schedule = Schedule.eager_load(:room).find_or_create_by({
             year: year, room: room, host: host, month: month, day: day
           })
 
-          schedule.update!(reserved: !is_possible) if schedule.reserved == nil || schedule.reserved? != !is_possible
+          schedule.update!(reserved: reserved) if schedule.reserved == reserved
         end
       end
     end
@@ -44,13 +45,13 @@ def get_type_one(year, month)
 end
 
 
-def get_type_two
-  # with post method(거제)
+def get_type_two(year, month)
+  # 거제
   Host.where(parse_type: 2).each do |host|
     host.parse_url.each do |u|
-      header = { referer: host.parse_url, cookie: 'ASPSESSIONIDQQDQDSCC=LBMMALCCHJKFMPGGJDGCEEPE' }
+      header = { referer: u, cookie: 'ASPSESSIONIDQQDQDSCC=LBMMALCCHJKFMPGGJDGCEEPE' }
       puts "-- Parsing... #{host.name} - #{u}"
-      content = RestClient.post host.parse_url, { wh_year: YEAR, wh_month: MONTH, x: 14, y: 12 }, header
+      content = RestClient.post(u, { wh_year: year, wh_month: month, x: 14, y: 12 }, header)
       doc = Nokogiri::HTML(content, 'euc-kr')
 
       rows = doc.css("[class='calendar'] table tbody tr")
@@ -65,19 +66,20 @@ def get_type_two
                         nil
                       end
 
+        room_name = room_name.gsub(/\s+.*$/, "")
+        puts "# #{room_name}"
         room = Room.find_or_create_by(host: host, name: room_name, guest: guest_count)
 
         cols = row.css("td")
         cols.each_with_index do |col, day|
           next if day == 0
 
-          is_possible = (col.css('form').present? ? true : false)
-
+          reserved = (col.css('form').present? ? false : true)
           schedule = Schedule.eager_load(:room).find_or_create_by({
             year: YEAR, room: room, host: host, month: MONTH, day: day
           })
 
-          schedule.update!(reserved: !is_possible) if schedule.reserved == nil || schedule.reserved? != !is_possible
+          schedule.update!(reserved: reserved) if schedule.reserved == reserved
         end
       end
     end
@@ -85,13 +87,19 @@ def get_type_two
 end
 
 
-def get_type_three
-  # with post method(안면도 자연휴양림)
+def get_type_three(year, month)
+  # 안면도, 강씨봉
   Host.where(parse_type: 3).each do |host|
+    # 시작전에 schedule reset 함(가능한 방만 parse하기 때문)
+    Schedule.update_all(reserved: false, host_id: host.id)
+
+    #cookies = RestClient.get(host.url).cookies
+    #cookie = "#{cookies.keys.first}=#{cookies.values.first}"
+
     host.parse_url.each do |u|
       puts "-- Parsing... #{host.name} - #{u}"
-      header = { referer: host.parse_url, cookie: host.cookie }
-      content = RestClient.post host.parse_url, { wh_year: YEAR, wh_month: MONTH, x: 14, y: 12 }, header
+      header = { referer: u, cookie: host.cookie }
+      content = RestClient.post(u, { wh_year: year, wh_month: month, x: 14, y: 12 }, header)
       doc = Nokogiri::HTML(content, 'euc-kr')
 
       rows = doc.css("table tbody tr")
@@ -104,10 +112,81 @@ def get_type_three
           rooms = col.css("form")
           rooms.each do |room|
             room_name = room.text.gsub("*", "")
+            puts "# #{room_name}"
             room = Room.find_or_create_by(host: host, name: room_name)
             schedule = Schedule.find_or_create_by({
               year: YEAR, room: room, host: host, month: MONTH, day: day
             })
+          end
+        end
+      end
+    end
+  end
+end
+
+def get_type_four(year, month)
+  # 청평, 설매재
+  Host.where(parse_type: 4).each do |host|
+    host.parse_url.each do |u|
+      _url = "#{u}year=#{year}&month=#{month}"
+      puts "# -- #{host.name}"
+
+      today = Time.now
+      start_of_day = today.month == month ? today.day : 1
+      end_of_day = Time.new("#{year}%2d01", month).end_of_month.day + 1
+
+      (start_of_day...end_of_day).each do |day|
+        puts "# -- #{month}/#{day}"
+        url = open("#{_url}&day=#{day}")
+        doc = Nokogiri::HTML(url, nil, 'euc-kr')
+        rows = doc.css("table[width='620']")[1].css("td[width='310']").last.css("tr[height='23']")
+        rows.each do |row|
+          cols = row.css("td")
+          room_name = cols.first.text
+          reserved = cols.last.css("input").size > 0 ? false : true
+
+          room = Room.find_or_create_by(host: host, name: room_name)
+          schedule = Schedule.find_or_create_by({
+            year: YEAR, room: room, host: host, month: MONTH, day: day
+          })
+          schedule.update!(reserved: reserved) if schedule.reserved != reserved
+        end
+      end
+    end
+  end
+end
+
+def get_type_five(year, month)
+  # 천보산
+  Host.where(parse_type: 5).each do |host|
+    host.parse_url.each do |u|
+      _url = "#{u}year=#{year}&month=#{month}"
+      puts "# -- #{host.name}"
+
+      today = Time.now
+      start_of_day = today.month == month ? today.day : 1
+      end_of_day = Time.new("#{year}%2d01", month).end_of_month.day + 1
+      groups = ["netfu_257254846", "netfu_8_27230000", "netfu_3_73830205", "netfu_40019_79959", "netfu_5_77011918", "netfu_2_30281931"]
+
+      groups.each do |group|
+        (start_of_day...end_of_day).each do |day|
+          puts "# -- #{month}/#{day}"
+          url = open("#{_url}&day=#{day}&group=#{group}")
+          doc = Nokogiri::HTML(url, nil, 'utf-8')
+          rows = doc.css("[class='tf'] tr table tr[height='40']")
+          rows.each do |row|
+            cols = row.css("td")
+            room_name = cols[1].text.gsub(/\s+/, "")
+            puts "#-- #{room_name}"
+            min, max = cols[2].text.split("/")
+            size = cols[4].css("[class='num11']").text
+            reserved = cols.last.css("[class='psr']").size > 0 ? false : true
+
+            room = Room.find_or_create_by(host: host, name: room_name, size: size, guest: max)
+            schedule = Schedule.find_or_create_by({
+              year: YEAR, room: room, host: host, month: MONTH, day: day
+            })
+            schedule.update!(reserved: reserved) if schedule.reserved != reserved
           end
         end
       end
@@ -122,9 +201,12 @@ def get_national_forest
 
   parse_url = "http://www.huyang.go.kr/reservation/reservationMonthSearch.action"
   url = "http://www.huyang.go.kr/reservation/reservationMonthSearch.action?useBgnDtm=20130601&dprtm=0113&fcltMdcls=03001&availMonth=201506"
+  header = { cookie: 'elevisor_for_j2ee_uid=-9035965834960077555; ACEFCID=UID-558B7C224981A42576CEAE35; JSESSIONID=hwoTx6xUzG22+cN35tKj-+oX.node05_1' }
+
   hosts.each do |id, name|
     room_types.each do |room_type|
-      content = RestClient.post(parse_url, { dprtm: id.to_i, fcltMdcls: MONTH, availMonth: YYMMDD })
+      params = { availMonth: YYMM, dprtm: id.to_i, fcltMdcls: room_type, useBgnDtm: 20130601 }
+      content = RestClient.post(parse_url, params, header)
       doc = Nokogiri::HTML(content)
     end
   end
@@ -135,9 +217,11 @@ YEAR = now.year
 MONTH = now.month
 YYMMDD = now.strftime("%Y%m%d")
 
-[MONTH, MONTH + 1].each do |month|
-  get_type_one(YEAR, month)
+#[MONTH, MONTH + 1].each do |month|
+[MONTH].each do |month|
+  #get_type_one(YEAR, month)
   #get_type_two(YEAR, month)
-  #get_type_three(YEAR, month)
+  get_type_three(YEAR, month)
   #get_type_four(YEAR, month)
+  #get_type_five(YEAR, month)
 end
