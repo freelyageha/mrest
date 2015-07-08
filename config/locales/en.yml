@@ -21,7 +21,9 @@
 
 en:
   home:
-    welcome_html: "<h2>Welcome!</h2><h4 id='subtitle'>How do you think about go to rest.</h4>"
+    welcome_title: "Welcome!"
+    welcome_sub_title: "How do you think about go to rest."
+
 
   common:
     checkin: "CheckIn"

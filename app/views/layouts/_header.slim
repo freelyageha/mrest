@@ -1,4 +1,26 @@
-nav.navbar.navbar-default.navbar-fixed-top
-  .container
-    .navbar-header
-      a.navbar-brand href="#" forRest
+header.header-main
+  .navbar.navbar-default.sticky-nav.sticky role="navigation"
+    .container
+      .navbar-header
+        button type="button" class="navbar-toggle" data-toggle="collapse"
+          .sr-only  Toggle navigation
+          .icon-bar
+          .icon-bar
+          .icon-bar
+        .navbar-brand href="index.html"
+          = "Hugar"
+
+      .navbar-collapse.collapse
+        ul.nav.navbar-nav.navbar-right
+          li
+            a.js-activated href="#" 회원가입
+          li
+            a.js-activated href="#" 로그인
+          li.dropdown
+            a.dropdown-toggle.js-activated href="#" 도움말
+            /ul.dropdown-menu
+              li
+                a href="#" D1
+                a href="#" D2
+          li
+            a.js-activated href="#" 연락하기

@@ -1,6 +1,7 @@
 ko:
   home:
-    welcome_html: "<h2>환영합니다!</h2><h4 id='subtitle'>전국의 숲속의 쉼터를 찾아보세요.</h4>"
+    welcome_title: "환영합니다!"
+    welcome_sub_title: "전국의 숲속의 쉼터를 찾아보세요."
 
   common:
     checkin: "체크인"

@@ -1,0 +1,10 @@
+.col-md-4.col-sm-6.margin-btm-20
+  .news-sec
+    .news-thumnail
+      a href=host_path(host.id)
+        img.img-responsive src=image_path('work-1.jpg')
+    .news-desc
+      h3.blog-post-title
+        a.hover-color href=host_path(host.id) = host.name
+      span.news-post-cat = "#{host.address}| #{time_ago_in_words(host.updated_at)}"
+      p

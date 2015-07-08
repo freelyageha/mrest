@@ -1,0 +1,14 @@
+$primary-color: #0FAF97;
+
+select { -webkit-appearance: none; }
+
+.navbar-default { padding: 0; }
+.navbar-brand:first-letter { color: $primary-color; }
+.page-tree-bg {
+  background-image: asset-url('bread-bg.png');
+}
+
+.input-daterange input {
+  text-align: left;
+  &:last-child { border-radius: 1px; }
+}

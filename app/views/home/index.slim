@@ -1,5 +1,13 @@
-.intro
-  = t("home.welcome_html")
+- content_for :top_section do
+  section.padding-40.page-tree-bg
+    .container
+      h3.page-tree-text = t("home.welcome_title")
+      h4.text-center = t("home.welcome_sub_title")
+      = render 'search_form'
 
-.row
-  = render 'layouts/search_form'
+.text-center
+  h2 GOGOGO
+  p rest
+  .space-20
+
+= render 'recommend_hosts'
